@@ -12,6 +12,26 @@ import cookieParser from "cookie-parser";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+async function cleanupExpiredSessions() {
+  try {
+    const result = await prisma.session.deleteMany({
+      where: {
+        expiresAt: {
+          lt: new Date(),
+        },
+      },
+    });
+
+    console.log(`Cleaned up ${result.count} expired sessions.`);
+  } catch (error) {
+    console.error("Session cleanup error:", error);
+  }
+}
+
+void cleanupExpiredSessions();
+
+setInterval(cleanupExpiredSessions, 60 * 60 * 1000);
+
 
 app.use(helmet());
 app.use(cors({

@@ -8,10 +8,32 @@ import {
   SESSION_DURATION_DAYS,
 } from "../utils/session.js";
 import type { Request, Response } from "express";
+import rateLimit from "express-rate-limit";
+import { Prisma } from "@prisma/client";
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  message: {
+    error: "Too many login attempts. Please try again in 15 minutes.",
+  },
+});
+
+const registerLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 5,
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  message: {
+    error: "Too many registration attempts. Please try again in 15 minutes.",
+  },
+});
 
 const router = Router();
 
-router.post("/register", async (req, res) => {
+router.post("/register", registerLimiter, async (req, res) => {
   try {
     const result = registerSchema.safeParse(req.body);
 
@@ -21,6 +43,7 @@ router.post("/register", async (req, res) => {
             details: result.error.issues.map((issue) => issue.message),
   });
 }
+
 
 const { email, username, password } = result.data;
 
@@ -59,13 +82,22 @@ const { email, username, password } = result.data;
       message: "Account created successfully!",
       user,
     });
-  } catch (error) {
-    console.error("Registration error:", error);
-
-    return res.status(500).json({
-      error: "Something went wrong during registration.",
+    } catch (error) {
+        if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2002"
+        ) {
+    return res.status(409).json({
+      error: "Email or username is already taken.",
     });
-  }
+    }
+
+  console.error("Registration error:", error);
+
+  return res.status(500).json({
+    error: "Something went wrong during registration.",
+  });
+}
 });
 
 
@@ -91,7 +123,7 @@ const loginSchema = z.object({
 });
 
 
-router.post("/login", async (req, res) => {
+router.post("/login", loginLimiter, async (req, res) => {
   try {
     const result = loginSchema.safeParse(req.body);
 
