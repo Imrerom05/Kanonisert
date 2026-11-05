@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import './App.css'
+import type { Work } from './types/work'
+import { searchWorks } from './api/works'
 
 
 function App() {
@@ -11,6 +13,10 @@ function App() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [message, setMessage] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<Work[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+  const [searchError, setSearchError] = useState('')
 
   useEffect(() => {
   async function checkSession() {
@@ -80,25 +86,141 @@ function App() {
     return <main className="auth-page">Loading Kanonisert...</main>
   }
 
-  if (user) {
-  return (
-    <main className="auth-page">
-      <section className="auth-container">
-        <div className="brand">KANONISERT</div>
-        <div className="brand-subtitle">The art of reading</div>
-        <h1 className="auth-title">Welcome back, {user.username}!</h1>
-        <p className="auth-description">Your next chapter awaits.</p>
 
-        <button
-          className="auth-button"
-          onClick={handleLogout}
-        >
-          Sign Out
-        </button>
+  if (user) {
+    return (
+     <main className="dashboard">
+        <header className="dashboard-header">
+          <div className="brand">KANONISERT</div>
+
+          <nav className="dashboard-nav">
+            <button>Home</button>
+            <button>Discover</button>
+            <button>My Library</button>
+            <button>Friends</button>
+          </nav>
+
+         <button
+            className="logout-button"
+            onClick={handleLogout}
+         >
+            Sign Out
+          </button>
+        </header>
+
+        <section className="dashboard-content">
+         <section className="dashboard-content">
+  <div className="dashboard-welcome">
+    <h1>Welcome back, {user.username}.</h1>
+    <p>Discover stories. Share your reading journey.</p>
+  </div>
+
+<div className="book-search">
+  <input
+    type="text"
+    placeholder="Search books, authors and genres..."
+    value={searchQuery}
+    onChange={(event) => setSearchQuery(event.target.value)}
+    onKeyDown={(event) => {
+      if (event.key === 'Enter') handleBookSearch()
+    }}
+  />
+  <button onClick={handleBookSearch} disabled={isSearching}>
+    {isSearching ? 'Searching...' : 'Search'}
+  </button>
+    </div>
+
+    {searchError && (
+  <p className="search-error">{searchError}</p>
+)}
+
+{isSearching && (
+  <p className="search-status">Searching the library...</p>
+)}
+
+{searchResults.length > 0 && (
+  <section className="search-results">
+    <h2>Search Results</h2>
+
+    <div className="results-grid">
+      {searchResults.map((work) => (
+        <article className="result-card" key={work.work_id}>
+          {work.cover_image_url && (
+            <img
+              src={work.cover_image_url}
+              alt={`Cover of ${work.title}`}
+            />
+          )}
+
+          <h3>{work.title}</h3>
+
+          {work.original_year && <p>{work.original_year}</p>}
+        </article>
+      ))}
+    </div>
+  </section>
+)}
+
+  <section className="feed-section">
+    <h2>New from Friends</h2>
+
+    <div className="feed-placeholder">
+      <span className="shelf-symbol">✦</span>
+      <h3>Your friends' reading journeys</h3>
+      <p>
+        New books, reviews and reading updates from your friends
+        will appear here.
+      </p>
+    </div>
+  </section>
+
+
+
+  <section className="feed-section">
+    <h2>Popular Now</h2>
+
+    <div className="popular-grid">
+      <article className="popular-card">
+        <div className="book-placeholder">BOOK I</div>
+        <h3>Discover new stories</h3>
+        <p>Explore books loved by the community.</p>
+      </article>
+
+      <article className="popular-card">
+        <div className="book-placeholder">BOOK II</div>
+        <h3>Find your next favourite</h3>
+        <p>See what other readers are enjoying.</p>
+      </article>
+
+      <article className="popular-card">
+        <div className="book-placeholder">BOOK III</div>
+        <h3>Expand your collection</h3>
+        <p>There is always another story waiting.</p>
+      </article>
+    </div>
+      </section>
+      </section>
       </section>
     </main>
   )
   }
+
+  async function handleBookSearch() {
+  if (!searchQuery.trim()) return
+
+  setIsSearching(true)
+  setSearchError('')
+  setSearchResults([])
+
+  try {
+    const works = await searchWorks(searchQuery)
+    setSearchResults(works)
+  } catch {
+    setSearchError('Could not search for books. Please try again.')
+  } finally {
+    setIsSearching(false)
+  }
+}
 
   async function handleLogout() {
   try {

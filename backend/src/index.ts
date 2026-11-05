@@ -5,6 +5,7 @@ import helmet from "helmet";
 import prisma from "./lib/prisma.js";
 import authRoutes from "./auth/auth.routes.js";
 import cookieParser from "cookie-parser";
+import worksRoutes from "./works/works.routes.js";
 
 
 
@@ -41,6 +42,7 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 app.use("/api/auth", authRoutes);
+app.use("/api/works", worksRoutes);
 
 app.get("/health", async (_req, res) => {
   try {

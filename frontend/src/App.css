@@ -180,3 +180,274 @@ button {
     font-size: 27px;
   }
 }
+
+/* Main dashboard */
+
+.dashboard {
+  min-height: 100vh;
+  background: #10100F;
+  color: #F1E5C8;
+}
+
+.dashboard-header {
+  min-height: 85px;
+  padding: 18px 6%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #625337;
+  background: #1D1A16;
+}
+
+.dashboard-header .brand {
+  margin: 0;
+  font-size: 27px;
+}
+
+.dashboard-nav {
+  display: flex;
+  align-items: center;
+  gap: 38px;
+}
+
+.dashboard-nav button {
+  background: none;
+  border: none;
+  color: #F1E5C8;
+  font-size: 18px;
+}
+
+.dashboard-nav button:first-child {
+  color: #C9A24B;
+}
+
+.logout-button {
+  background: transparent;
+  border: 1px solid #C9A24B;
+  color: #C9A24B;
+  padding: 10px 20px;
+  font-family: 'Cinzel', serif;
+}
+
+.dashboard-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 25px 30px;
+}
+
+.dashboard-welcome {
+  margin-bottom: 40px;
+}
+
+.dashboard-welcome h1 {
+  color: #C9A24B;
+  font-family: 'Cinzel', serif;
+  font-size: 38px;
+  margin: 12px 0;
+}
+
+.dashboard-welcome p {
+  color: #B8A98A;
+  font-size: 19px;
+}
+
+.book-search {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 65px;
+}
+
+.book-search input {
+  flex: 1;
+  padding: 16px;
+  background: #1D1A16;
+  border: 1px solid #625337;
+  color: #F1E5C8;
+  font-size: 18px;
+}
+
+.book-search button {
+  padding: 0 30px;
+  background: #C9A24B;
+  border: none;
+  color: #10100F;
+  font-family: 'Cinzel', serif;
+}
+
+.shelves h2 {
+  color: #C9A24B;
+  font-family: 'Cinzel', serif;
+  margin-bottom: 25px;
+}
+
+.shelf-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+.shelf-card {
+  padding: 30px;
+  background: #1D1A16;
+  border: 1px solid #625337;
+}
+
+.shelf-symbol {
+  color: #C9A24B;
+  font-size: 28px;
+}
+
+.shelf-card h3 {
+  color: #F1E5C8;
+  font-family: 'Cinzel', serif;
+}
+
+.shelf-card p {
+  color: #B8A98A;
+  font-size: 17px;
+}
+
+@media (max-width: 700px) {
+  .dashboard-header {
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .dashboard-nav {
+    order: 3;
+    width: 100%;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .shelf-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-welcome h1 {
+    font-size: 29px;
+  }
+}
+
+
+/* Friends activity feed */
+
+.feed-section {
+  margin-top: 55px;
+}
+
+.feed-section h2 {
+  color: #C9A24B;
+  font-family: 'Cinzel', serif;
+  font-size: 25px;
+  margin-bottom: 24px;
+}
+
+.feed-placeholder {
+  padding: 35px;
+  background: #1D1A16;
+  border: 1px solid #625337;
+}
+
+.feed-placeholder h3 {
+  color: #F1E5C8;
+  font-family: 'Cinzel', serif;
+}
+
+.feed-placeholder p {
+  color: #B8A98A;
+  font-size: 18px;
+}
+
+.popular-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.popular-card {
+  padding: 20px;
+  background: #1D1A16;
+  border: 1px solid #625337;
+}
+
+.book-placeholder {
+  aspect-ratio: 2 / 3;
+  max-height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  background: linear-gradient(145deg, #493B27, #201A12);
+  border: 1px solid #C9A24B;
+  color: #C9A24B;
+  font-family: 'Cinzel', serif;
+  font-size: 22px;
+  letter-spacing: 3px;
+}
+
+.popular-card h3 {
+  color: #F1E5C8;
+  font-family: 'Cinzel', serif;
+  font-size: 18px;
+}
+
+.popular-card p {
+  color: #B8A98A;
+  font-size: 17px;
+}
+
+@media (max-width: 700px) {
+  .popular-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Book search results */
+
+.search-results {
+  margin: 35px 0;
+}
+
+.search-results h2 {
+  color: var(--gold);
+  font-family: 'Cinzel', serif;
+  margin-bottom: 25px;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 25px;
+}
+
+.result-card {
+  padding: 15px;
+  background: var(--surface);
+  border: 1px solid #625337;
+}
+
+.result-card img {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  display: block;
+  margin-bottom: 15px;
+}
+
+.result-card h3 {
+  color: var(--cream);
+  font-family: 'Cinzel', serif;
+  font-size: 16px;
+}
+
+.result-card p,
+.search-status,
+.search-error {
+  color: #B8A98A;
+  font-size: 17px;
+}
+
+.search-error {
+  color: #D98282;
+}
