@@ -35,4 +35,37 @@ return res.json(works);
 });
 
 
+router.get("/:workId/full", async (req, res) => {
+  try {
+    const workId = Number(req.params.workId)
+
+    if (!Number.isInteger(workId) || workId <= 0) {
+      return res.status(400).json({
+        error: "Invalid work ID.",
+      })
+    }
+
+    const apiResponse = await fetch(
+      `https://book-api-os07.onrender.com/works/${workId}/full`
+    )
+
+    if (!apiResponse.ok) {
+      return res.status(apiResponse.status).json({
+        error: "Could not fetch work details.",
+      })
+    }
+
+    const work = await apiResponse.json()
+
+    return res.json(work)
+  } catch (error) {
+    console.error("Full work fetch error:", error)
+
+    return res.status(500).json({
+      error: "Could not fetch work details.",
+    })
+  }
+})
+
+
 export default router;
