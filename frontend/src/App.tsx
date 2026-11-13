@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import './App.css'
-import type { Work } from './types/work'
-import { searchWorks } from './api/works'
+import type { Work, FullWork } from './types/work'
+import { searchWorks, getFullWork } from './api/works'
+
 
 
 function App() {
@@ -17,6 +18,8 @@ function App() {
   const [searchResults, setSearchResults] = useState<Work[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [searchError, setSearchError] = useState('')
+  const [selectedWork, setSelectedWork] = useState<FullWork | null>(null)
+  const [isLoadingWork, setIsLoadingWork] = useState(false)
 
   useEffect(() => {
   async function checkSession() {
@@ -144,7 +147,11 @@ function App() {
 
     <div className="results-grid">
       {searchResults.map((work) => (
-        <article className="result-card" key={work.work_id}>
+        <article
+          className="result-card"
+          key={work.work_id}
+          onClick={() => handleSelectWork(work.work_id)}
+          >
           {work.cover_image_url && (
             <img
               src={work.cover_image_url}
@@ -157,6 +164,57 @@ function App() {
           {work.original_year && <p>{work.original_year}</p>}
         </article>
       ))}
+    </div>
+  </section>
+)}
+
+{isLoadingWork && (
+  <p className="search-status">Loading work details...</p>
+)}
+
+{selectedWork && (
+  <section className="work-details">
+    <button onClick={() => setSelectedWork(null)}>
+      Back to search
+    </button>
+
+    <div className="work-details-content">
+      {selectedWork.cover_image_url && (
+        <img
+          src={selectedWork.cover_image_url}
+          alt={`Cover of ${selectedWork.title}`}
+        />
+      )}
+
+      <div className="work-details-info">
+        <h2>{selectedWork.title}</h2>
+
+        <h3>Author</h3>
+        <p>
+          {selectedWork.authors.map(author => author.name).join(', ')}
+        </p>
+
+        <h3>Description</h3>
+        <p>
+          {selectedWork.description || 'No description available.'}
+        </p>
+
+        <h3>Publication details</h3>
+        <p>Original year: {selectedWork.original_year ?? 'Unknown'}</p>
+        <p>Original language: {selectedWork.original_language ?? 'Unknown'}</p>
+
+        <h3>Series</h3>
+        {selectedWork.series.length > 0 ? (
+          selectedWork.series.map(series => (
+            <p key={series.series_id}>
+              {series.name}
+              {series.position !== null && ` — Book ${series.position}`}
+            </p>
+          ))
+        ) : (
+          <p>Not part of a known series.</p>
+        )}
+      </div>
     </div>
   </section>
 )}
@@ -219,6 +277,20 @@ function App() {
     setSearchError('Could not search for books. Please try again.')
   } finally {
     setIsSearching(false)
+  }
+}
+
+async function handleSelectWork(workId: number) {
+  setIsLoadingWork(true)
+  setSelectedWork(null)
+
+  try {
+    const work = await getFullWork(workId)
+    setSelectedWork(work)
+  } catch {
+    setSearchError('Could not load work details. Please try again.')
+  } finally {
+    setIsLoadingWork(false)
   }
 }
 
