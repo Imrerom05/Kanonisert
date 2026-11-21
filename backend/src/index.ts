@@ -6,7 +6,7 @@ import prisma from "./lib/prisma.js";
 import authRoutes from "./auth/auth.routes.js";
 import cookieParser from "cookie-parser";
 import worksRoutes from "./works/works.routes.js";
-
+import readingListRoutes from "./reading-list/reading-list.routes.js";
 
 
 
@@ -43,6 +43,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use("/api/auth", authRoutes);
 app.use("/api/works", worksRoutes);
+app.use("/api/reading-list", readingListRoutes);
 
 app.get("/health", async (_req, res) => {
   try {

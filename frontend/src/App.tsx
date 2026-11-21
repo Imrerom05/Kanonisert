@@ -2,12 +2,24 @@ import { useEffect, useState } from 'react'
 import './App.css'
 import type { Work, FullWork } from './types/work'
 import { searchWorks, getFullWork } from './api/works'
+import {
+  addToReadingList,
+  getReadingList,
+  type ReadingListItem,
+} from './api/readingList'
+import { useAuth } from './controller/useAuth'
+import Auth from './pages/Auth'
 
 
 
 function App() {
-  const [isCheckingSession, setIsCheckingSession] = useState(true)
-  const [user, setUser] = useState<{ username: string } | null>(null)
+const {
+  user,
+  isCheckingSession,
+  signIn,
+  signUp,
+  signOut,
+} = useAuth()
   const [isRegistering, setIsRegistering] = useState(false)
   const [identifier, setIdentifier] = useState('')
   const [email, setEmail] = useState('')
@@ -20,70 +32,18 @@ function App() {
   const [searchError, setSearchError] = useState('')
   const [selectedWork, setSelectedWork] = useState<FullWork | null>(null)
   const [isLoadingWork, setIsLoadingWork] = useState(false)
-
+  const [readingListMessage, setReadingListMessage] = useState('')
+  const [isAddingToReadingList, setIsAddingToReadingList] = useState(false)
+  const [readingList, setReadingList] = useState<ReadingListItem[]>([])
+  const [isLoadingReadingList, setIsLoadingReadingList] = useState(false)
+  
   useEffect(() => {
-  async function checkSession() {
-    try {
-      const response = await fetch('http://localhost:3000/api/auth/me', {
-        credentials: 'include',
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        setUser(data.user)
-      }
-    } catch {
-      console.log('No active session found.')
-    } finally {
-      setIsCheckingSession(false)
+    if (user) {
+      loadReadingList()
+    } else {
+      setReadingList([])
     }
-  }
-
-  checkSession()
-}, [])
-
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setMessage('')
-
-    const endpoint = isRegistering
-      ? '/api/auth/register'
-      : '/api/auth/login'
-
-    const body = isRegistering
-      ? { email, username, password }
-      : { identifier, password }
-
-    try {
-      const response = await fetch(`http://localhost:3000${endpoint}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(body),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        setMessage(data.error || 'Something went wrong.')
-        return
-      }
-
-      if (!isRegistering) {
-        setUser(data.user)
-      }
-
-      setMessage(
-        isRegistering
-          ? 'Your account has been created!'
-          : `Welcome back, ${data.user.username}!`
-      )
-    } catch {
-      setMessage('Could not connect to Kanonisert. Please try again.')
-    }
-  }
+  }, [user])
 
   if (isCheckingSession) {
     return <main className="auth-page">Loading Kanonisert...</main>
@@ -92,7 +52,7 @@ function App() {
 
   if (user) {
     return (
-     <main className="dashboard">
+      <main className="dashboard">
         <header className="dashboard-header">
           <div className="brand">KANONISERT</div>
 
@@ -103,313 +63,274 @@ function App() {
             <button>Friends</button>
           </nav>
 
-         <button
+          <button
             className="logout-button"
             onClick={handleLogout}
-         >
+          >
             Sign Out
           </button>
         </header>
 
         <section className="dashboard-content">
-         <section className="dashboard-content">
-  <div className="dashboard-welcome">
-    <h1>Welcome back, {user.username}.</h1>
-    <p>Discover stories. Share your reading journey.</p>
-  </div>
+          <section className="dashboard-content">
+            <div className="dashboard-welcome">
+              <h1>Welcome back, {user.username}.</h1>
+              <p>Discover stories. Share your reading journey.</p>
+            </div>
 
-<div className="book-search">
-  <input
-    type="text"
-    placeholder="Search books, authors and genres..."
-    value={searchQuery}
-    onChange={(event) => setSearchQuery(event.target.value)}
-    onKeyDown={(event) => {
-      if (event.key === 'Enter') handleBookSearch()
-    }}
-  />
-  <button onClick={handleBookSearch} disabled={isSearching}>
-    {isSearching ? 'Searching...' : 'Search'}
-  </button>
-    </div>
+            <div className="book-search">
+              <input
+                type="text"
+                placeholder="Search books, authors and genres..."
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') handleBookSearch()
+                }}
+              />
+              <button onClick={handleBookSearch} disabled={isSearching}>
+                {isSearching ? 'Searching...' : 'Search'}
+              </button>
+            </div>
 
-    {searchError && (
-  <p className="search-error">{searchError}</p>
-)}
+            {searchError && (
+              <p className="search-error">{searchError}</p>
+            )}
 
-{isSearching && (
-  <p className="search-status">Searching the library...</p>
-)}
+            {isSearching && (
+              <p className="search-status">Searching the library...</p>
+            )}
 
-{searchResults.length > 0 && (
-  <section className="search-results">
-    <h2>Search Results</h2>
+            {searchResults.length > 0 && (
+              <section className="search-results">
+                <h2>Search Results</h2>
 
-    <div className="results-grid">
-      {searchResults.map((work) => (
-        <article
-          className="result-card"
-          key={work.work_id}
-          onClick={() => handleSelectWork(work.work_id)}
-          >
-          {work.cover_image_url && (
-            <img
-              src={work.cover_image_url}
-              alt={`Cover of ${work.title}`}
-            />
-          )}
+                <div className="results-grid">
+                  {searchResults.map((work) => (
+                    <article
+                      className="result-card"
+                      key={work.work_id}
+                      onClick={() => handleSelectWork(work.work_id)}
+                    >
+                      {work.cover_image_url && (
+                        <img
+                          src={work.cover_image_url}
+                          alt={`Cover of ${work.title}`}
+                        />
+                      )}
 
-          <h3>{work.title}</h3>
+                      <h3>{work.title}</h3>
 
-          {work.original_year && <p>{work.original_year}</p>}
-        </article>
-      ))}
-    </div>
-  </section>
-)}
+                      {work.original_year && <p>{work.original_year}</p>}
+                    </article>
+                  ))}
+                </div>
+              </section>
+            )}
 
-{isLoadingWork && (
-  <p className="search-status">Loading work details...</p>
-)}
+            {isLoadingWork && (
+              <p className="search-status">Loading work details...</p>
+            )}
 
-{selectedWork && (
-  <section className="work-details">
-    <button onClick={() => setSelectedWork(null)}>
-      Back to search
-    </button>
+            {selectedWork && (
+              <section className="work-details">
+                <button onClick={() => setSelectedWork(null)}>
+                  Back to search
+                </button>
 
-    <div className="work-details-content">
-      {selectedWork.cover_image_url && (
-        <img
-          src={selectedWork.cover_image_url}
-          alt={`Cover of ${selectedWork.title}`}
-        />
-      )}
+                <div className="work-details-content">
+                  {selectedWork.cover_image_url && (
+                    <img
+                      src={selectedWork.cover_image_url}
+                      alt={`Cover of ${selectedWork.title}`}
+                    />
+                  )}
 
-      <div className="work-details-info">
-        <h2>{selectedWork.title}</h2>
+                  <div className="work-details-info">
+                    <h2>{selectedWork.title}</h2>
+                    <button
+                      onClick={handleAddToReadingList}
+                      disabled={isAddingToReadingList}
+                    >
+                      {isAddingToReadingList ? 'Adding...' : 'Add to Reading List'}
+                    </button>
 
-        <h3>Author</h3>
-        <p>
-          {selectedWork.authors.map(author => author.name).join(', ')}
-        </p>
+                    {readingListMessage && (
+                      <p className="search-status">{readingListMessage}</p>
+                    )}
 
-        <h3>Description</h3>
-        <p>
-          {selectedWork.description || 'No description available.'}
-        </p>
+                    <h3>Author</h3>
+                    <p>
+                      {selectedWork.authors.map(author => author.name).join(', ')}
+                    </p>
 
-        <h3>Publication details</h3>
-        <p>Original year: {selectedWork.original_year ?? 'Unknown'}</p>
-        <p>Original language: {selectedWork.original_language ?? 'Unknown'}</p>
+                    <h3>Description</h3>
+                    <p>
+                      {selectedWork.description || 'No description available.'}
+                    </p>
 
-        <h3>Series</h3>
-        {selectedWork.series.length > 0 ? (
-          selectedWork.series.map(series => (
-            <p key={series.series_id}>
-              {series.name}
-              {series.position !== null && ` — Book ${series.position}`}
-            </p>
-          ))
-        ) : (
-          <p>Not part of a known series.</p>
-        )}
-      </div>
-    </div>
-  </section>
-)}
+                    <h3>Publication details</h3>
+                    <p>Original year: {selectedWork.original_year ?? 'Unknown'}</p>
+                    <p>Original language: {selectedWork.original_language ?? 'Unknown'}</p>
 
-  <section className="feed-section">
-    <h2>New from Friends</h2>
+                    <h3>Series</h3>
+                    {selectedWork.series.length > 0 ? (
+                      selectedWork.series.map(series => (
+                        <p key={series.series_id}>
+                          {series.name}
+                          {series.position !== null && ` — Book ${series.position}`}
+                        </p>
+                      ))
+                    ) : (
+                      <p>Not part of a known series.</p>
+                    )}
+                  </div>
+                </div>
+              </section>
+            )}
 
-    <div className="feed-placeholder">
-      <span className="shelf-symbol">✦</span>
-      <h3>Your friends' reading journeys</h3>
-      <p>
-        New books, reviews and reading updates from your friends
-        will appear here.
-      </p>
-    </div>
-  </section>
+            <section className="reading-list-section">
+              <h2>My Reading List</h2>
+
+              {isLoadingReadingList ? (
+                <p>Loading your books...</p>
+              ) : readingList.length === 0 ? (
+                <p>Your reading list is empty. Discover a book to get started!</p>
+              ) : (
+                <div className="reading-list-grid">
+                  {readingList.map(item => (
+                    <article className="reading-list-card" key={item.id}>
+                      <h3>Book ID: {item.workId}</h3>
+                      <p>Status: {item.status.replaceAll('_', ' ')}</p>
+                    </article>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            <section className="feed-section">
+              <h2>New from Friends</h2>
+
+              <div className="feed-placeholder">
+                <span className="shelf-symbol">✦</span>
+                <h3>Your friends' reading journeys</h3>
+                <p>
+                  New books, reviews and reading updates from your friends
+                  will appear here.
+                </p>
+              </div>
+            </section>
 
 
 
-  <section className="feed-section">
-    <h2>Popular Now</h2>
+            <section className="feed-section">
+              <h2>Popular Now</h2>
 
-    <div className="popular-grid">
-      <article className="popular-card">
-        <div className="book-placeholder">BOOK I</div>
-        <h3>Discover new stories</h3>
-        <p>Explore books loved by the community.</p>
-      </article>
+              <div className="popular-grid">
+                <article className="popular-card">
+                  <div className="book-placeholder">BOOK I</div>
+                  <h3>Discover new stories</h3>
+                  <p>Explore books loved by the community.</p>
+                </article>
 
-      <article className="popular-card">
-        <div className="book-placeholder">BOOK II</div>
-        <h3>Find your next favourite</h3>
-        <p>See what other readers are enjoying.</p>
-      </article>
+                <article className="popular-card">
+                  <div className="book-placeholder">BOOK II</div>
+                  <h3>Find your next favourite</h3>
+                  <p>See what other readers are enjoying.</p>
+                </article>
 
-      <article className="popular-card">
-        <div className="book-placeholder">BOOK III</div>
-        <h3>Expand your collection</h3>
-        <p>There is always another story waiting.</p>
-      </article>
-    </div>
-      </section>
-      </section>
-      </section>
-    </main>
-  )
+                <article className="popular-card">
+                  <div className="book-placeholder">BOOK III</div>
+                  <h3>Expand your collection</h3>
+                  <p>There is always another story waiting.</p>
+                </article>
+              </div>
+            </section>
+          </section>
+        </section>
+      </main>
+    )
   }
 
   async function handleBookSearch() {
-  if (!searchQuery.trim()) return
+    if (!searchQuery.trim()) return
 
-  setIsSearching(true)
-  setSearchError('')
-  setSearchResults([])
+    setIsSearching(true)
+    setSearchError('')
+    setSearchResults([])
 
-  try {
-    const works = await searchWorks(searchQuery)
-    setSearchResults(works)
-  } catch {
-    setSearchError('Could not search for books. Please try again.')
-  } finally {
-    setIsSearching(false)
-  }
-}
-
-async function handleSelectWork(workId: number) {
-  setIsLoadingWork(true)
-  setSelectedWork(null)
-
-  try {
-    const work = await getFullWork(workId)
-    setSelectedWork(work)
-  } catch {
-    setSearchError('Could not load work details. Please try again.')
-  } finally {
-    setIsLoadingWork(false)
-  }
-}
-
-  async function handleLogout() {
-  try {
-    const response = await fetch('http://localhost:3000/api/auth/logout', {
-      method: 'POST',
-      credentials: 'include',
-    })
-
-    if (!response.ok) {
-      setMessage('Could not sign out. Please try again.')
-      return
+    try {
+      const works = await searchWorks(searchQuery)
+      setSearchResults(works)
+    } catch {
+      setSearchError('Could not search for books. Please try again.')
+    } finally {
+      setIsSearching(false)
     }
+  }
 
-    setUser(null)
-    setMessage('You have been signed out.')
-  } catch {
-    setMessage('Could not connect to Kanonisert.')
+  async function handleSelectWork(workId: number) {
+    setIsLoadingWork(true)
+    setSelectedWork(null)
+
+    try {
+      const work = await getFullWork(workId)
+      setSelectedWork(work)
+    } catch {
+      setSearchError('Could not load work details. Please try again.')
+    } finally {
+      setIsLoadingWork(false)
+    }
+  }
+
+  async function handleAddToReadingList() {
+    if (!selectedWork) return
+
+    setIsAddingToReadingList(true)
+    setReadingListMessage('')
+
+    try {
+      await addToReadingList(selectedWork.work_id)
+      await loadReadingList()
+      setReadingListMessage('Book added to your reading list!')
+    } catch (error) {
+      setReadingListMessage(
+        error instanceof Error ? error.message : 'Something went wrong.'
+      )
+    } finally {
+      setIsAddingToReadingList(false)
+    }
+  }
+
+  async function loadReadingList() {
+    setIsLoadingReadingList(true)
+
+    try {
+      const items = await getReadingList()
+      setReadingList(items)
+    } catch (error) {
+      console.error('Could not load reading list:', error)
+    } finally {
+      setIsLoadingReadingList(false)
+    }
+  }
+
+async function handleLogout() {
+  try {
+    await signOut()
+  } catch (error) {
+    console.error('Could not sign out:', error)
   }
 }
 
-  return (
-    <main className="auth-page">
-      <section className="auth-container">
-        <div className="brand">KANONISERT</div>
-
-        <h1 className="auth-title">
-          {isRegistering ? 'Join the community' : 'Welcome Back'}
-        </h1>
-
-        <p className="auth-description">
-          {isRegistering
-            ? 'Create an account and begin your literary journey.'
-            : 'Your next chapter begins here.'}
-        </p>
-
-        <form className="auth-form" onSubmit={handleSubmit}>
-          {isRegistering ? (
-            <>
-              <label>
-                Email
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  placeholder="Your email address"
-                  required
-                />
-              </label>
-
-              <label>
-                Username
-                <input
-                  type="text"
-                  value={username}
-                  onChange={(event) => setUsername(event.target.value)}
-                  placeholder="Choose a username"
-                  minLength={3}
-                  maxLength={20}
-                  required
-                />
-              </label>
-            </>
-          ) : (
-            <label>
-              Email or Username
-              <input
-                type="text"
-                value={identifier}
-                onChange={(event) => setIdentifier(event.target.value)}
-                placeholder="Your email or username"
-                required
-              />
-            </label>
-          )}
-
-          <label>
-            Password
-            <input
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder="Your password"
-              minLength={isRegistering ? 8 : undefined}
-              required
-            />
-          </label>
-
-          <button className="auth-button" type="submit">
-            {isRegistering ? 'Create Account' : 'Sign In'}
-          </button>
-        </form>
-
-        {message && (
-          <p className="auth-message" role="status">
-            {message}
-          </p>
-        )}
-
-        <div className="auth-switch">
-          {isRegistering
-            ? 'Already a member? '
-            : 'New to Kanonisert? '}
-
-          <button
-            type="button"
-            onClick={() => {
-              setIsRegistering(!isRegistering)
-              setMessage('')
-              setPassword('')
-            }}
-          >
-            {isRegistering ? 'Sign In' : 'Create Account'}
-          </button>
-        </div>
-      </section>
-    </main>
-  )
+return (
+  <Auth
+    onLogin={signIn}
+    onRegister={signUp}
+  />
+)
 }
+
+
 
 export default App
