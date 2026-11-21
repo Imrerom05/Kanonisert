@@ -1,49 +1,35 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import './App.css'
 import type { Work, FullWork } from './types/work'
 import { searchWorks, getFullWork } from './api/works'
-import {
-  addToReadingList,
-  getReadingList,
-  type ReadingListItem,
-} from './api/readingList'
-import { useAuth } from './controller/useAuth'
+import { useAuth } from './hooks/useAuth'
 import Auth from './pages/Auth'
+import { useReadingList } from './hooks/useReadingList'
+
 
 
 
 function App() {
-const {
-  user,
-  isCheckingSession,
-  signIn,
-  signUp,
-  signOut,
-} = useAuth()
-  const [isRegistering, setIsRegistering] = useState(false)
-  const [identifier, setIdentifier] = useState('')
-  const [email, setEmail] = useState('')
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [message, setMessage] = useState('')
+  const {
+    user,
+    isCheckingSession,
+    signIn,
+    signUp,
+    signOut,
+  } = useAuth()
+  const {
+    readingList,
+    isLoadingReadingList,
+    readingListMessage,
+    isAddingToReadingList,
+    handleAddToReadingList: addBookToReadingList,
+  } = useReadingList(user)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<Work[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [searchError, setSearchError] = useState('')
   const [selectedWork, setSelectedWork] = useState<FullWork | null>(null)
   const [isLoadingWork, setIsLoadingWork] = useState(false)
-  const [readingListMessage, setReadingListMessage] = useState('')
-  const [isAddingToReadingList, setIsAddingToReadingList] = useState(false)
-  const [readingList, setReadingList] = useState<ReadingListItem[]>([])
-  const [isLoadingReadingList, setIsLoadingReadingList] = useState(false)
-  
-  useEffect(() => {
-    if (user) {
-      loadReadingList()
-    } else {
-      setReadingList([])
-    }
-  }, [user])
 
   if (isCheckingSession) {
     return <main className="auth-page">Loading Kanonisert...</main>
@@ -149,7 +135,11 @@ const {
                   <div className="work-details-info">
                     <h2>{selectedWork.title}</h2>
                     <button
-                      onClick={handleAddToReadingList}
+                      onClick={() => {
+                        if (selectedWork) {
+                          void addBookToReadingList(selectedWork.work_id)
+                        }
+                      }}
                       disabled={isAddingToReadingList}
                     >
                       {isAddingToReadingList ? 'Adding...' : 'Add to Reading List'}
@@ -283,52 +273,21 @@ const {
     }
   }
 
-  async function handleAddToReadingList() {
-    if (!selectedWork) return
 
-    setIsAddingToReadingList(true)
-    setReadingListMessage('')
-
+  async function handleLogout() {
     try {
-      await addToReadingList(selectedWork.work_id)
-      await loadReadingList()
-      setReadingListMessage('Book added to your reading list!')
+      await signOut()
     } catch (error) {
-      setReadingListMessage(
-        error instanceof Error ? error.message : 'Something went wrong.'
-      )
-    } finally {
-      setIsAddingToReadingList(false)
+      console.error('Could not sign out:', error)
     }
   }
 
-  async function loadReadingList() {
-    setIsLoadingReadingList(true)
-
-    try {
-      const items = await getReadingList()
-      setReadingList(items)
-    } catch (error) {
-      console.error('Could not load reading list:', error)
-    } finally {
-      setIsLoadingReadingList(false)
-    }
-  }
-
-async function handleLogout() {
-  try {
-    await signOut()
-  } catch (error) {
-    console.error('Could not sign out:', error)
-  }
-}
-
-return (
-  <Auth
-    onLogin={signIn}
-    onRegister={signUp}
-  />
-)
+  return (
+    <Auth
+      onLogin={signIn}
+      onRegister={signUp}
+    />
+  )
 }
 
 
