@@ -1,20 +1,37 @@
 
+/* =====================================================
+   1. FONTS AND GLOBAL VARIABLES
+   ===================================================== */
+
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:wght@400;500;600;700&display=swap');
 
 :root {
+  /* Typography */
   font-family: 'Cormorant Garamond', serif;
-  color: #F1E5C8;
-  background: #10100F;
+
+  /* Main colour palette */
+  --gold: #C9A24B;
+  --gold-hover: #E0BD70;
+  --cream: #F1E5C8;
+  --muted: #B8A98A;
+  --dark: #10100F;
+  --surface: #1D1A16;
+  --border: #625337;
+  --error: #D98282;
+
+  /* Global defaults */
+  color: var(--cream);
+  background: var(--dark);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  --gold: #C9A24B;
-  --cream: #F1E5C8;
-  --dark: #10100F;
-  --surface: #1D1A16;
 }
+
+
+/* =====================================================
+   2. GLOBAL RESET AND BASE ELEMENTS
+   ===================================================== */
 
 * {
   box-sizing: border-box;
@@ -26,7 +43,12 @@ body {
   min-height: 100vh;
 }
 
-button, input {
+#root {
+  min-height: 100vh;
+}
+
+button,
+input {
   font: inherit;
 }
 
@@ -34,9 +56,25 @@ button {
   cursor: pointer;
 }
 
-#root {
-  min-height: 100vh;
+
+/* =====================================================
+   3. SHARED BRAND STYLING
+   ===================================================== */
+
+.brand {
+  font-family: 'Cinzel', serif;
+  font-size: 34px;
+  font-weight: 600;
+  letter-spacing: 5px;
+  color: var(--gold);
+  margin-bottom: 8px;
 }
+
+
+/* =====================================================
+   4. AUTHENTICATION PAGE
+   Login and registration
+   ===================================================== */
 
 .auth-page {
   min-height: 100vh;
@@ -44,11 +82,15 @@ button {
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
-  background:
-    radial-gradient(ellipse at center, #282117 0%, #10100F 70%);
+  background: radial-gradient(
+    ellipse at center,
+    #282117 0%,
+    var(--dark) 70%
+  );
 }
 
 .auth-container {
+  position: relative;
   width: 100%;
   max-width: 460px;
   padding: 48px;
@@ -57,8 +99,9 @@ button {
   border: 1px solid var(--gold);
   outline: 1px solid rgba(201, 162, 75, 0.3);
   outline-offset: 7px;
-  position: relative;
 }
+
+/* Decorative Art Deco symbols */
 
 .auth-container::before,
 .auth-container::after {
@@ -78,20 +121,11 @@ button {
   right: 16px;
 }
 
-.brand {
-  font-family: 'Cinzel', serif;
-  font-size: 34px;
-  font-weight: 600;
-  letter-spacing: 5px;
-  color: var(--gold);
-  margin-bottom: 8px;
-}
-
 .brand-subtitle {
   font-size: 17px;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: #B8A98A;
+  color: var(--muted);
   margin-bottom: 38px;
 }
 
@@ -99,15 +133,17 @@ button {
   font-family: 'Cinzel', serif;
   font-size: 25px;
   font-weight: 500;
-  color: #B8A98A;
+  color: var(--muted);
   margin-bottom: 10px;
 }
 
 .auth-description {
   font-size: 19px;
-  color: #B8A98A;
+  color: var(--muted);
   margin-bottom: 30px;
 }
+
+/* Authentication form */
 
 .auth-form {
   display: flex;
@@ -127,7 +163,7 @@ button {
   margin-top: 7px;
   background: var(--dark);
   color: var(--cream);
-  border: 1px solid #625337;
+  border: 1px solid var(--border);
   outline: none;
   font-size: 17px;
 }
@@ -135,6 +171,8 @@ button {
 .auth-form input:focus {
   border-color: var(--gold);
 }
+
+/* Login and registration button */
 
 .auth-button {
   margin-top: 12px;
@@ -149,13 +187,15 @@ button {
 }
 
 .auth-button:hover {
-  background: #E0BD70;
+  background: var(--gold-hover);
 }
+
+/* Switching between login and registration */
 
 .auth-switch {
   margin-top: 28px;
   font-size: 18px;
-  color: #B8A98A;
+  color: var(--muted);
 }
 
 .auth-switch button {
@@ -172,63 +212,82 @@ button {
   color: var(--gold);
 }
 
-@media (max-width: 500px) {
-  .auth-container {
-    padding: 38px 24px;
-  }
 
-  .brand {
-    font-size: 27px;
-  }
-}
-
-/* Main dashboard */
+/* =====================================================
+   5. MAIN DASHBOARD LAYOUT
+   Shared structure for all main pages
+   ===================================================== */
 
 .dashboard {
   min-height: 100vh;
-  background: #10100F;
-  color: #F1E5C8;
+  background: var(--dark);
+  color: var(--cream);
 }
+
+/* =====================================================
+   6. HEADER AND NAVIGATION
+   ===================================================== */
 
 .dashboard-header {
   min-height: 85px;
   padding: 18px 6%;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid #625337;
-  background: #1D1A16;
+  gap: 32px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
 }
 
 .dashboard-header .brand {
   margin: 0;
   font-size: 27px;
+  justify-self: start;
 }
+
+/* Main navigation links */
 
 .dashboard-nav {
   display: flex;
   align-items: center;
   gap: 38px;
+  justify-self: center;
 }
 
-.dashboard-nav button {
-  background: none;
-  border: none;
-  color: #F1E5C8;
+.dashboard-nav a {
+  color: var(--cream);
   font-size: 18px;
+  text-decoration: none;
+  transition: color 0.2s;
 }
 
-.dashboard-nav button:first-child {
-  color: #C9A24B;
+.dashboard-nav a:hover,
+.dashboard-nav a:focus-visible {
+  color: var(--gold);
 }
+
+/* Sign out button */
 
 .logout-button {
   background: transparent;
-  border: 1px solid #C9A24B;
-  color: #C9A24B;
+  border: 1px solid var(--gold);
+  color: var(--gold);
   padding: 10px 20px;
   font-family: 'Cinzel', serif;
+  transition: background 0.2s, color 0.2s;
+  justify-self: end;
 }
+
+.logout-button:hover {
+  background: var(--gold);
+  color: var(--dark);
+}
+
+
+/* =====================================================
+   7. DASHBOARD CONTENT
+   Shared content container
+   ===================================================== */
 
 .dashboard-content {
   max-width: 1200px;
@@ -236,21 +295,29 @@ button {
   padding: 25px 30px;
 }
 
+/* Welcome section */
+
 .dashboard-welcome {
   margin-bottom: 40px;
 }
 
 .dashboard-welcome h1 {
-  color: #C9A24B;
+  color: var(--gold);
   font-family: 'Cinzel', serif;
   font-size: 38px;
   margin: 12px 0;
 }
 
 .dashboard-welcome p {
-  color: #B8A98A;
+  color: var(--muted);
   font-size: 19px;
 }
+
+
+/* =====================================================
+   8. BOOK SEARCH
+   Search input and button
+   ===================================================== */
 
 .book-search {
   display: flex;
@@ -261,150 +328,24 @@ button {
 .book-search input {
   flex: 1;
   padding: 16px;
-  background: #1D1A16;
-  border: 1px solid #625337;
-  color: #F1E5C8;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--cream);
   font-size: 18px;
 }
 
 .book-search button {
   padding: 0 30px;
-  background: #C9A24B;
+  background: var(--gold);
   border: none;
-  color: #10100F;
+  color: var(--dark);
   font-family: 'Cinzel', serif;
 }
 
-.shelves h2 {
-  color: #C9A24B;
-  font-family: 'Cinzel', serif;
-  margin-bottom: 25px;
-}
 
-.shelf-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 22px;
-}
-
-.shelf-card {
-  padding: 30px;
-  background: #1D1A16;
-  border: 1px solid #625337;
-}
-
-.shelf-symbol {
-  color: #C9A24B;
-  font-size: 28px;
-}
-
-.shelf-card h3 {
-  color: #F1E5C8;
-  font-family: 'Cinzel', serif;
-}
-
-.shelf-card p {
-  color: #B8A98A;
-  font-size: 17px;
-}
-
-@media (max-width: 700px) {
-  .dashboard-header {
-    flex-wrap: wrap;
-    gap: 20px;
-  }
-
-  .dashboard-nav {
-    order: 3;
-    width: 100%;
-    justify-content: space-between;
-    gap: 12px;
-  }
-
-  .shelf-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .dashboard-welcome h1 {
-    font-size: 29px;
-  }
-}
-
-
-/* Friends activity feed */
-
-.feed-section {
-  margin-top: 55px;
-}
-
-.feed-section h2 {
-  color: #C9A24B;
-  font-family: 'Cinzel', serif;
-  font-size: 25px;
-  margin-bottom: 24px;
-}
-
-.feed-placeholder {
-  padding: 35px;
-  background: #1D1A16;
-  border: 1px solid #625337;
-}
-
-.feed-placeholder h3 {
-  color: #F1E5C8;
-  font-family: 'Cinzel', serif;
-}
-
-.feed-placeholder p {
-  color: #B8A98A;
-  font-size: 18px;
-}
-
-.popular-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-}
-
-.popular-card {
-  padding: 20px;
-  background: #1D1A16;
-  border: 1px solid #625337;
-}
-
-.book-placeholder {
-  aspect-ratio: 2 / 3;
-  max-height: 260px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 18px;
-  background: linear-gradient(145deg, #493B27, #201A12);
-  border: 1px solid #C9A24B;
-  color: #C9A24B;
-  font-family: 'Cinzel', serif;
-  font-size: 22px;
-  letter-spacing: 3px;
-}
-
-.popular-card h3 {
-  color: #F1E5C8;
-  font-family: 'Cinzel', serif;
-  font-size: 18px;
-}
-
-.popular-card p {
-  color: #B8A98A;
-  font-size: 17px;
-}
-
-@media (max-width: 700px) {
-  .popular-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Book search results */
+/* =====================================================
+   9. BOOK SEARCH RESULTS
+   ===================================================== */
 
 .search-results {
   margin: 35px 0;
@@ -425,7 +366,14 @@ button {
 .result-card {
   padding: 15px;
   background: var(--surface);
-  border: 1px solid #625337;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.result-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--gold);
 }
 
 .result-card img {
@@ -443,18 +391,21 @@ button {
 }
 
 .result-card p,
-.search-status,
-.search-error {
-  color: #B8A98A;
+.search-status {
+  color: var(--muted);
   font-size: 17px;
 }
 
 .search-error {
-  color: #D98282;
+  color: var(--error);
+  font-size: 17px;
 }
 
 
-/* Work details */
+/* =====================================================
+   10. BOOK DETAILS
+   Selected book information
+   ===================================================== */
 
 .work-details {
   margin: 45px 0;
@@ -502,28 +453,10 @@ button {
   line-height: 1.6;
 }
 
-.result-card {
-  cursor: pointer;
-  transition: transform 0.2s, border-color 0.2s;
-}
 
-.result-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--gold);
-}
-
-@media (max-width: 650px) {
-  .work-details-content {
-    grid-template-columns: 1fr;
-  }
-
-  .work-details-content > img {
-    max-width: 190px;
-  }
-}
-
-
-/* Reading list */
+/* =====================================================
+   11. READING LIST
+   ===================================================== */
 
 .reading-list-section {
   margin: 55px 0;
@@ -545,7 +478,7 @@ button {
 .reading-list-card {
   padding: 22px;
   background: var(--surface);
-  border: 1px solid #625337;
+  border: 1px solid var(--border);
 }
 
 .reading-list-card h3 {
@@ -555,6 +488,169 @@ button {
 }
 
 .reading-list-card p {
-  color: #B8A98A;
+  color: var(--muted);
   font-size: 17px;
+}
+
+
+/* =====================================================
+   12. FRIENDS ACTIVITY FEED
+   ===================================================== */
+
+.feed-section {
+  margin-top: 55px;
+}
+
+.feed-section h2 {
+  color: var(--gold);
+  font-family: 'Cinzel', serif;
+  font-size: 25px;
+  margin-bottom: 24px;
+}
+
+.feed-placeholder {
+  padding: 35px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.feed-placeholder h3 {
+  color: var(--cream);
+  font-family: 'Cinzel', serif;
+}
+
+.feed-placeholder p {
+  color: var(--muted);
+  font-size: 18px;
+}
+
+
+/* =====================================================
+   13. BOOK SHELVES AND POPULAR BOOKS
+   ===================================================== */
+
+.shelves h2 {
+  color: var(--gold);
+  font-family: 'Cinzel', serif;
+  margin-bottom: 25px;
+}
+
+.shelf-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+.shelf-card {
+  padding: 30px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.shelf-symbol {
+  color: var(--gold);
+  font-size: 28px;
+}
+
+.shelf-card h3 {
+  color: var(--cream);
+  font-family: 'Cinzel', serif;
+}
+
+.shelf-card p {
+  color: var(--muted);
+  font-size: 17px;
+}
+
+.popular-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.popular-card {
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.book-placeholder {
+  aspect-ratio: 2 / 3;
+  max-height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  background: linear-gradient(145deg, #493B27, #201A12);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  font-family: 'Cinzel', serif;
+  font-size: 22px;
+  letter-spacing: 3px;
+}
+
+.popular-card h3 {
+  color: var(--cream);
+  font-family: 'Cinzel', serif;
+  font-size: 18px;
+}
+
+.popular-card p {
+  color: var(--muted);
+  font-size: 17px;
+}
+
+
+/* =====================================================
+   14. RESPONSIVE DESIGN
+   Tablet and mobile adjustments
+   ===================================================== */
+
+/* Smaller screens */
+
+@media (max-width: 700px) {
+  .dashboard-header {
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .dashboard-nav {
+    order: 3;
+    width: 100%;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .shelf-grid,
+  .popular-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-welcome h1 {
+    font-size: 29px;
+  }
+}
+
+/* Book details on mobile */
+
+@media (max-width: 650px) {
+  .work-details-content {
+    grid-template-columns: 1fr;
+  }
+
+  .work-details-content > img {
+    max-width: 190px;
+  }
+}
+
+/* Authentication page on mobile */
+
+@media (max-width: 500px) {
+  .auth-container {
+    padding: 38px 24px;
+  }
+
+  .brand {
+    font-size: 27px;
+  }
 }
