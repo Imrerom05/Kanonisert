@@ -96,8 +96,6 @@ function Home({
                 <div className="result-card-info">
                     <h3>{work.title}</h3>
 
-                    <p>{work.original_year ?? 'Year unknown'}</p>
-
                     <p className="result-card-description">
                         {work.description || 'No description available.'}
                     </p>
@@ -127,11 +125,6 @@ function Home({
 
                 <div className="result-card-info">
                     <h3>{author.name}</h3>
-
-                    <p>
-                        {author.birth ?? 'Unknown'}
-                        {author.death ? ` – ${author.death}` : ''}
-                    </p>
 
                     <p className="result-card-description">
                         {author.description || 'No biography available.'}

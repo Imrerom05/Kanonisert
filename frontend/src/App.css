@@ -340,9 +340,10 @@ button {
 }
 
 
-/* =========================================
-   SEARCH RESULTS
-   ========================================= */
+
+/* =====================================================
+   9. SEARCH RESULTS
+   ===================================================== */
 
 .search-results {
   margin: 35px 0;
@@ -361,7 +362,7 @@ button {
   align-items: stretch;
 }
 
-/* Shared result card */
+/* Search result cards */
 
 .result-card {
   height: 150px;
@@ -383,14 +384,13 @@ button {
   border-color: var(--gold);
 }
 
-/* Image area */
+/* Image */
 
 .result-card-image {
   width: 90px;
   min-width: 90px;
   height: 124px;
   flex-shrink: 0;
-  align-self: center;
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -418,6 +418,13 @@ button {
   justify-content: center;
   gap: 10px;
   color: var(--gold);
+  overflow: hidden;
+}
+
+.no-image-placeholder img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .no-image-placeholder span {
@@ -449,34 +456,41 @@ button {
   flex: 1;
   min-width: 0;
   height: 100%;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 6px;
   overflow: hidden;
+  padding-top: 8px;
 }
+
+/* Every title gets the same reserved space */
 
 .result-card-info h3 {
   width: 100%;
+  height: 44px;
+  min-height: 44px;
+  flex-shrink: 0;
   margin: 0;
   color: var(--cream);
   font-family: 'Cinzel', serif;
   font-size: 15px;
   line-height: 1.4;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
+
+/* Description */
 
 .result-card-info p {
   width: 100%;
   margin: 0;
   color: var(--muted);
-  font-size: 14px;
 }
-
-/* Description preview */
 
 .result-card-info .result-card-description {
   display: -webkit-box;
@@ -484,10 +498,12 @@ button {
   -webkit-line-clamp: 3;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-size: 14px;
   line-height: 1.35;
+  max-height: 56.7px;
 }
 
-/* Mobile layout */
+/* Mobile */
 
 @media (max-width: 500px) {
   .results-grid {
@@ -507,14 +523,23 @@ button {
     height: 113px;
   }
 
+  .result-card-info {
+    padding-top: 5px;
+    gap: 5px;
+  }
+
   .result-card-info h3 {
+    height: 39px;
+    min-height: 39px;
     font-size: 14px;
   }
 
   .result-card-info .result-card-description {
     -webkit-line-clamp: 2;
+    max-height: 37.8px;
   }
 }
+
 
 /* =====================================================
    10. BOOK DETAILS
