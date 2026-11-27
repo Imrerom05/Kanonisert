@@ -1,6 +1,12 @@
 import type { User } from '../api/auth'
 import type { ReadingListItem } from '../api/readingList'
-import type { Work, FullWork } from '../types/work'
+import type {
+    Work,
+    FullWork,
+    Author,
+    Series,
+} from '../types/work'
+import type { SearchType } from '../api/works'
 import Navigation from '../components/layout/Navigation'
 
 
@@ -14,6 +20,10 @@ interface HomeProps {
     searchQuery: string
     onSearchQueryChange: (query: string) => void
     searchResults: Work[]
+    searchType: SearchType
+    onSearchTypeChange: (type: SearchType) => void
+    authorResults: Author[]
+    seriesResults: Series[]
     isSearching: boolean
     searchError: string
     selectedWork: FullWork | null
@@ -42,6 +52,10 @@ function Home({
     searchQuery,
     onSearchQueryChange,
     searchResults,
+    searchType,
+    onSearchTypeChange,
+    authorResults,
+    seriesResults,
     isSearching,
     searchError,
     selectedWork,
@@ -79,6 +93,47 @@ function Home({
                     </button>
                 </div>
 
+
+                <div className="search-categories">
+                    <button
+                        type="button"
+                        className={searchType === 'all' ? 'search-category-button active' : 'search-category-button'}
+                        onClick={() => onSearchTypeChange('all')}
+                        aria-pressed={searchType === 'all'}
+                    >
+                        <span>All</span>
+                    </button>
+
+
+                    <button
+                        type="button"
+                        className={searchType === 'works' ? 'search-category-button active' : 'search-category-button'}
+                        onClick={() => onSearchTypeChange('works')}
+                        aria-pressed={searchType === 'works'}
+                    >
+                        <span>Books</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        className={searchType === 'series' ? 'search-category-button active' : 'search-category-button'}
+                        onClick={() => onSearchTypeChange('series')}
+                        aria-pressed={searchType === 'series'}
+                    >
+                        <span>Series</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        className={searchType === 'authors' ? 'search-category-button active' : 'search-category-button'}
+                        onClick={() => onSearchTypeChange('authors')}
+                        aria-pressed={searchType === 'authors'}
+                    >
+                        <span>Authors</span>
+                    </button>
+                </div>
+
+
                 {searchError && (
                     <p className="search-error">{searchError}</p>
                 )}
@@ -87,9 +142,10 @@ function Home({
                     <p className="search-status">Searching the library...</p>
                 )}
 
-                {searchResults.length > 0 && (
+
+                {(searchType === 'works' || searchType === 'all') && searchResults.length > 0 && (
                     <section className="search-results">
-                        <h2>Search Results</h2>
+                        <h2>Books</h2>
 
                         <div className="results-grid">
                             {searchResults.map((work) => (
@@ -113,6 +169,56 @@ function Home({
                         </div>
                     </section>
                 )}
+
+                {(searchType === 'authors' || searchType === 'all') && authorResults.length > 0 && (
+                    <section className="search-results">
+                        <h2>Authors</h2>
+
+                        <div className="results-grid">
+                            {authorResults.map((author) => (
+                                <article
+                                    className="result-card"
+                                    key={author.author_id}
+                                >
+                                    {author.image_url && (
+                                        <img
+                                            src={author.image_url}
+                                            alt={`Portrait of ${author.name}`}
+                                        />
+                                    )}
+
+                                    <h3>{author.name}</h3>
+
+                                    {author.description && (
+                                        <p>{author.description}</p>
+                                    )}
+                                </article>
+                            ))}
+                        </div>
+                    </section>
+                )}
+
+                {(searchType === 'series' || searchType === 'all') && seriesResults.length > 0 && (
+                    <section className="search-results">
+                        <h2>Series</h2>
+
+                        <div className="results-grid">
+                            {seriesResults.map((series) => (
+                                <article
+                                    className="result-card"
+                                    key={series.series_id}
+                                >
+                                    <h3>{series.name}</h3>
+
+                                    {series.description && (
+                                        <p>{series.description}</p>
+                                    )}
+                                </article>
+                            ))}
+                        </div>
+                    </section>
+                )}
+
 
                 {isLoadingWork && (
                     <p className="search-status">Loading work details...</p>

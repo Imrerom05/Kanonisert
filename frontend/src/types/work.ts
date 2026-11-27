@@ -1,3 +1,4 @@
+
 export interface Work {
   work_id: number
   title: string
@@ -7,13 +8,19 @@ export interface Work {
   original_language: string | null
 }
 
-
 export interface Author {
   author_id: number
   name: string
   birth: number | null
   death: number | null
   image_url: string | null
+  description: string | null
+}
+
+/** Represents a book series returned by the search API. */
+export interface Series {
+  series_id: number
+  name: string
   description: string | null
 }
 
@@ -26,4 +33,11 @@ export interface WorkSeries {
 export interface FullWork extends Work {
   authors: Author[]
   series: WorkSeries[]
+}
+
+/** Represents the complete response from the search API. */
+export interface SearchResponse {
+  works: Work[]
+  authors: Author[]
+  series: Series[]
 }

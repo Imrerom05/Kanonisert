@@ -26,60 +26,22 @@ function App() {
     isAddingToReadingList,
     handleAddToReadingList: addBookToReadingList,
   } = useReadingList(user)
-  const {
-    searchQuery,
-    setSearchQuery,
-    searchResults,
-    isSearching,
-    searchError,
-    selectedWork,
-    setSelectedWork,
-    isLoadingWork,
-    handleBookSearch,
-    handleSelectWork,
-  } = useBookSearch()
-
-  if (isCheckingSession) {
-    return <main className="auth-page">Loading Kanonisert...</main>
-  }
-
-
-if (user) {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <Home
-              user={user}
-              readingList={readingList}
-              isLoadingReadingList={isLoadingReadingList}
-              readingListMessage={readingListMessage}
-              isAddingToReadingList={isAddingToReadingList}
-              searchQuery={searchQuery}
-              onSearchQueryChange={setSearchQuery}
-              searchResults={searchResults}
-              isSearching={isSearching}
-              searchError={searchError}
-              selectedWork={selectedWork}
-              isLoadingWork={isLoadingWork}
-              onSearch={handleBookSearch}
-              onSelectWork={handleSelectWork}
-              onClearSelectedWork={() => setSelectedWork(null)}
-              onAddToReadingList={addBookToReadingList}
-              onLogout={handleLogout}
-            />
-          }
-        />
-        <Route path="/discover" element={<Discover />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
-  )
-}
-
+const {
+  searchQuery,
+  setSearchQuery,
+  searchType,
+  setSearchType,
+  searchResults,
+  authorResults,
+  seriesResults,
+  isSearching,
+  searchError,
+  selectedWork,
+  setSelectedWork,
+  isLoadingWork,
+  handleBookSearch,
+  handleSelectWork,
+} = useBookSearch()
 
   async function handleLogout() {
     try {
@@ -88,6 +50,58 @@ if (user) {
       console.error('Could not sign out:', error)
     }
   }
+
+  if (isCheckingSession) {
+    return <main className="auth-page">Loading Kanonisert...</main>
+  }
+
+
+  if (user) {
+    return (
+      <BrowserRouter>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <Home
+                user={user}
+                readingList={readingList}
+                isLoadingReadingList={isLoadingReadingList}
+                readingListMessage={readingListMessage}
+                isAddingToReadingList={isAddingToReadingList}
+                searchQuery={searchQuery}
+                onSearchQueryChange={setSearchQuery}
+                searchResults={searchResults}
+                searchType={searchType}
+                onSearchTypeChange={setSearchType}
+                authorResults={authorResults}
+                seriesResults={seriesResults}
+                isSearching={isSearching}
+                searchError={searchError}
+                selectedWork={selectedWork}
+                isLoadingWork={isLoadingWork}
+                onSearch={handleBookSearch}
+                onSelectWork={handleSelectWork}
+                onClearSelectedWork={() => setSelectedWork(null)}
+                onAddToReadingList={addBookToReadingList}
+                onLogout={handleLogout}
+              />
+            }
+          />
+          <Route
+            path="/discover"
+            element={<Discover onLogout={handleLogout} />}
+          />
+          <Route
+            path="/profile"
+            element={<Profile onLogout={handleLogout} />}
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    )
+  }
+
 
   return (
     <Auth
