@@ -143,15 +143,14 @@ function Home({
                 )}
 
 
-                {(searchType === 'works' || searchType === 'all') && searchResults.length > 0 && (
-                    <section className="search-results">
-                        <h2>Books</h2>
 
+                {searchType === 'all' && (
+                    <section className="search-results">
                         <div className="results-grid">
                             {searchResults.map((work) => (
                                 <article
                                     className="result-card"
-                                    key={work.work_id}
+                                    key={`work-${work.work_id}`}
                                     onClick={() => onSelectWork(work.work_id)}
                                 >
                                     {work.cover_image_url && (
@@ -160,25 +159,15 @@ function Home({
                                             alt={`Cover of ${work.title}`}
                                         />
                                     )}
-
                                     <h3>{work.title}</h3>
-
                                     {work.original_year && <p>{work.original_year}</p>}
                                 </article>
                             ))}
-                        </div>
-                    </section>
-                )}
 
-                {(searchType === 'authors' || searchType === 'all') && authorResults.length > 0 && (
-                    <section className="search-results">
-                        <h2>Authors</h2>
-
-                        <div className="results-grid">
                             {authorResults.map((author) => (
                                 <article
                                     className="result-card"
-                                    key={author.author_id}
+                                    key={`author-${author.author_id}`}
                                 >
                                     {author.image_url && (
                                         <img
@@ -186,38 +175,73 @@ function Home({
                                             alt={`Portrait of ${author.name}`}
                                         />
                                     )}
-
                                     <h3>{author.name}</h3>
-
-                                    {author.description && (
-                                        <p>{author.description}</p>
-                                    )}
+                                    {author.description && <p>{author.description}</p>}
                                 </article>
                             ))}
-                        </div>
-                    </section>
-                )}
 
-                {(searchType === 'series' || searchType === 'all') && seriesResults.length > 0 && (
-                    <section className="search-results">
-                        <h2>Series</h2>
-
-                        <div className="results-grid">
                             {seriesResults.map((series) => (
                                 <article
                                     className="result-card"
-                                    key={series.series_id}
+                                    key={`series-${series.series_id}`}
                                 >
                                     <h3>{series.name}</h3>
-
-                                    {series.description && (
-                                        <p>{series.description}</p>
-                                    )}
+                                    {series.description && <p>{series.description}</p>}
                                 </article>
                             ))}
                         </div>
                     </section>
                 )}
+
+                {searchType === 'works' && searchResults.length > 0 && (
+                    <section className="search-results">
+                        <div className="results-grid">
+                            {searchResults.map((work) => (
+                                <article
+                                    className="result-card"
+                                    key={work.work_id}
+                                    onClick={() => onSelectWork(work.work_id)}
+                                >
+                                    {work.cover_image_url && (
+                                        <img src={work.cover_image_url} alt={`Cover of ${work.title}`} />
+                                    )}
+                                    <h3>{work.title}</h3>
+                                    {work.original_year && <p>{work.original_year}</p>}
+                                </article>
+                            ))}
+                        </div>
+                    </section>
+                )}
+
+                {searchType === 'authors' && authorResults.length > 0 && (
+                    <section className="search-results">
+                        <div className="results-grid">
+                            {authorResults.map((author) => (
+                                <article className="result-card" key={author.author_id}>
+                                    {author.image_url && (
+                                        <img src={author.image_url} alt={`Portrait of ${author.name}`} />
+                                    )}
+                                    <h3>{author.name}</h3>
+                                    {author.description && <p>{author.description}</p>}
+                                </article>
+                            ))}
+                        </div>
+                    </section>
+                )}
+
+                {searchType === 'series' && seriesResults.length > 0 && (
+                    <section className="search-results">
+                        <div className="results-grid">
+                            {seriesResults.map((series) => (
+                                <article className="result-card" key={series.series_id}>
+                                    <h3>{series.name}</h3>
+                                    {series.description && <p>{series.description}</p>}
+                                </article>
+                            ))}
+                        </div>
+                    </section>
+                )}
+
 
 
                 {isLoadingWork && (
