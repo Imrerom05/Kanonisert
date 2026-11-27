@@ -11,8 +11,8 @@ export interface Work {
 export interface Author {
   author_id: number
   name: string
-  birth: number | null
-  death: number | null
+  birth: string | null
+  death: string | null
   image_url: string | null
   description: string | null
 }
@@ -40,4 +40,18 @@ export interface SearchResponse {
   works: Work[]
   authors: Author[]
   series: Series[]
+}
+
+
+/** Represents an author together with their complete book list. */
+export interface FullAuthor extends Author {
+  works: Work[]
+}
+
+
+/** Represents a series together with its complete book list. */
+export interface FullSeries extends Series {
+  works: (Work & {
+    position: number | null
+  })[]
 }

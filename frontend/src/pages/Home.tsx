@@ -1,14 +1,15 @@
+
 import type { User } from '../api/auth'
 import type { ReadingListItem } from '../api/readingList'
 import type {
     Work,
-    FullWork,
     Author,
     Series,
 } from '../types/work'
+import type { SelectedItem } from '../hooks/useBookSearch'
 import type { SearchType } from '../api/works'
 import Navigation from '../components/layout/Navigation'
-
+import InformationModal from '../components/books/InformationModal'
 
 interface HomeProps {
     user: User
@@ -26,12 +27,14 @@ interface HomeProps {
     seriesResults: Series[]
     isSearching: boolean
     searchError: string
-    selectedWork: FullWork | null
-    isLoadingWork: boolean
+    selectedItem: SelectedItem | null
+    isLoadingItem: boolean
 
     onSearch: () => void
     onSelectWork: (workId: number) => void
-    onClearSelectedWork: () => void
+    onSelectAuthor: (authorId: number) => void
+    onSelectSeries: (seriesId: number) => void
+    onClearSelectedItem: () => void
     onAddToReadingList: (workId: number) => void
     onLogout: () => void
 }
@@ -42,7 +45,6 @@ interface HomeProps {
  * Displays the user's dashboard, including
  * book discovery, reading list and friends' activity.
  */
-
 function Home({
     user,
     readingList,
@@ -58,14 +60,114 @@ function Home({
     seriesResults,
     isSearching,
     searchError,
-    selectedWork,
-    isLoadingWork,
+    selectedItem,
+    isLoadingItem,
     onSearch,
     onSelectWork,
-    onClearSelectedWork,
+    onSelectAuthor,
+    onSelectSeries,
+    onClearSelectedItem,
     onAddToReadingList,
     onLogout,
 }: HomeProps) {
+
+
+
+
+    /** Renders a book search result card. */
+    function renderWorkCard(work: Work) {
+        return (
+            <article
+                className="result-card"
+                key={`work-${work.work_id}`}
+                onClick={() => onSelectWork(work.work_id)}
+            >
+                <div className="result-card-image">
+                    {work.cover_image_url ? (
+                        <img src={work.cover_image_url} alt={`Cover of ${work.title}`} />
+                    ) : (
+                        <div className="no-image-placeholder book-placeholder">
+                            <span>▤</span>
+                            <small>Book</small>
+                        </div>
+                    )}
+                </div>
+
+                <div className="result-card-info">
+                    <h3>{work.title}</h3>
+
+                    <p>{work.original_year ?? 'Year unknown'}</p>
+
+                    <p className="result-card-description">
+                        {work.description || 'No description available.'}
+                    </p>
+                </div>
+            </article>
+        )
+    }
+
+    /** Renders an author search result card. */
+    function renderAuthorCard(author: Author) {
+        return (
+            <article
+                className="result-card"
+                key={`author-${author.author_id}`}
+                onClick={() => onSelectAuthor(author.author_id)}
+            >
+                <div className="result-card-image">
+                    {author.image_url ? (
+                        <img src={author.image_url} alt={`Portrait of ${author.name}`} />
+                    ) : (
+                        <div className="no-image-placeholder author-placeholder">
+                            <span>♙</span>
+                            <small>AUTHOR</small>
+                        </div>
+                    )}
+                </div>
+
+                <div className="result-card-info">
+                    <h3>{author.name}</h3>
+
+                    <p>
+                        {author.birth ?? 'Unknown'}
+                        {author.death ? ` – ${author.death}` : ''}
+                    </p>
+
+                    <p className="result-card-description">
+                        {author.description || 'No biography available.'}
+                    </p>
+                </div>
+            </article>
+        )
+    }
+
+    /** Renders a series search result card. */
+    function renderSeriesCard(series: Series) {
+        return (
+            <article
+                className="result-card"
+                key={`series-${series.series_id}`}
+                onClick={() => onSelectSeries(series.series_id)}
+            >
+                <div className="result-card-image">
+                    <div className="no-image-placeholder series-placeholder">
+                        <span>▤</span>
+                        <small>SERIES</small>
+                    </div>
+                </div>
+                
+                <div className="result-card-info">
+                    <h3>{series.name}</h3>
+
+                    <p className="result-card-description">
+                        {series.description || 'No description available.'}
+                    </p>
+                </div>
+            </article>
+        )
+    }
+
+
 
     return (
         <main className="dashboard">
@@ -80,7 +182,7 @@ function Home({
                 <div className="book-search">
                     <input
                         type="text"
-                        placeholder="Search books, authors and genres..."
+                        placeholder="Search books, authors and series..."
                         value={searchQuery}
                         onChange={(event) => onSearchQueryChange(event.target.value)}
                         onKeyDown={(event) => {
@@ -93,7 +195,6 @@ function Home({
                     </button>
                 </div>
 
-
                 <div className="search-categories">
                     <button
                         type="button"
@@ -103,7 +204,6 @@ function Home({
                     >
                         <span>All</span>
                     </button>
-
 
                     <button
                         type="button"
@@ -133,7 +233,6 @@ function Home({
                     </button>
                 </div>
 
-
                 {searchError && (
                     <p className="search-error">{searchError}</p>
                 )}
@@ -142,168 +241,56 @@ function Home({
                     <p className="search-status">Searching the library...</p>
                 )}
 
-
-
+                {/* All search results */}
                 {searchType === 'all' && (
                     <section className="search-results">
                         <div className="results-grid">
-                            {searchResults.map((work) => (
-                                <article
-                                    className="result-card"
-                                    key={`work-${work.work_id}`}
-                                    onClick={() => onSelectWork(work.work_id)}
-                                >
-                                    {work.cover_image_url && (
-                                        <img
-                                            src={work.cover_image_url}
-                                            alt={`Cover of ${work.title}`}
-                                        />
-                                    )}
-                                    <h3>{work.title}</h3>
-                                    {work.original_year && <p>{work.original_year}</p>}
-                                </article>
-                            ))}
-
-                            {authorResults.map((author) => (
-                                <article
-                                    className="result-card"
-                                    key={`author-${author.author_id}`}
-                                >
-                                    {author.image_url && (
-                                        <img
-                                            src={author.image_url}
-                                            alt={`Portrait of ${author.name}`}
-                                        />
-                                    )}
-                                    <h3>{author.name}</h3>
-                                    {author.description && <p>{author.description}</p>}
-                                </article>
-                            ))}
-
-                            {seriesResults.map((series) => (
-                                <article
-                                    className="result-card"
-                                    key={`series-${series.series_id}`}
-                                >
-                                    <h3>{series.name}</h3>
-                                    {series.description && <p>{series.description}</p>}
-                                </article>
-                            ))}
+                            {searchResults.map(renderWorkCard)}
+                            {authorResults.map(renderAuthorCard)}
+                            {seriesResults.map(renderSeriesCard)}
                         </div>
                     </section>
                 )}
 
+                {/* Book search results */}
                 {searchType === 'works' && searchResults.length > 0 && (
                     <section className="search-results">
                         <div className="results-grid">
-                            {searchResults.map((work) => (
-                                <article
-                                    className="result-card"
-                                    key={work.work_id}
-                                    onClick={() => onSelectWork(work.work_id)}
-                                >
-                                    {work.cover_image_url && (
-                                        <img src={work.cover_image_url} alt={`Cover of ${work.title}`} />
-                                    )}
-                                    <h3>{work.title}</h3>
-                                    {work.original_year && <p>{work.original_year}</p>}
-                                </article>
-                            ))}
+                            {searchResults.map(renderWorkCard)}
                         </div>
                     </section>
                 )}
 
+                {/* Author search results */}
                 {searchType === 'authors' && authorResults.length > 0 && (
                     <section className="search-results">
                         <div className="results-grid">
-                            {authorResults.map((author) => (
-                                <article className="result-card" key={author.author_id}>
-                                    {author.image_url && (
-                                        <img src={author.image_url} alt={`Portrait of ${author.name}`} />
-                                    )}
-                                    <h3>{author.name}</h3>
-                                    {author.description && <p>{author.description}</p>}
-                                </article>
-                            ))}
+                            {authorResults.map(renderAuthorCard)}
                         </div>
                     </section>
                 )}
 
+                {/* Series search results */}
                 {searchType === 'series' && seriesResults.length > 0 && (
                     <section className="search-results">
                         <div className="results-grid">
-                            {seriesResults.map((series) => (
-                                <article className="result-card" key={series.series_id}>
-                                    <h3>{series.name}</h3>
-                                    {series.description && <p>{series.description}</p>}
-                                </article>
-                            ))}
+                            {seriesResults.map(renderSeriesCard)}
                         </div>
                     </section>
                 )}
 
-
-
-                {isLoadingWork && (
-                    <p className="search-status">Loading work details...</p>
+                {isLoadingItem && (
+                    <p className="search-status">Loading information...</p>
                 )}
 
-                {selectedWork && (
-                    <section className="work-details">
-                        <button onClick={onClearSelectedWork}>
-                            Back to search
-                        </button>
-
-                        <div className="work-details-content">
-                            {selectedWork.cover_image_url && (
-                                <img
-                                    src={selectedWork.cover_image_url}
-                                    alt={`Cover of ${selectedWork.title}`}
-                                />
-                            )}
-
-                            <div className="work-details-info">
-                                <h2>{selectedWork.title}</h2>
-
-                                <button
-                                    onClick={() => onAddToReadingList(selectedWork.work_id)}
-                                    disabled={isAddingToReadingList}
-                                >
-                                    {isAddingToReadingList ? 'Adding...' : 'Add to Reading List'}
-                                </button>
-
-                                {readingListMessage && (
-                                    <p className="search-status">{readingListMessage}</p>
-                                )}
-
-                                <h3>Author</h3>
-                                <p>
-                                    {selectedWork.authors.map(author => author.name).join(', ')}
-                                </p>
-
-                                <h3>Description</h3>
-                                <p>
-                                    {selectedWork.description || 'No description available.'}
-                                </p>
-
-                                <h3>Publication details</h3>
-                                <p>Original year: {selectedWork.original_year ?? 'Unknown'}</p>
-                                <p>Original language: {selectedWork.original_language ?? 'Unknown'}</p>
-
-                                <h3>Series</h3>
-                                {selectedWork.series.length > 0 ? (
-                                    selectedWork.series.map(series => (
-                                        <p key={series.series_id}>
-                                            {series.name}
-                                            {series.position !== null && ` — Book ${series.position}`}
-                                        </p>
-                                    ))
-                                ) : (
-                                    <p>Not part of a known series.</p>
-                                )}
-                            </div>
-                        </div>
-                    </section>
+                {selectedItem && (
+                    <InformationModal
+                        selectedItem={selectedItem}
+                        onClose={onClearSelectedItem}
+                        onSelectWork={onSelectWork}
+                        onSelectAuthor={onSelectAuthor}
+                        onSelectSeries={onSelectSeries}
+                    />
                 )}
             </section>
 
@@ -339,10 +326,7 @@ function Home({
                 </div>
             </section>
         </main>
-
-
     )
-
 }
 
 export default Home

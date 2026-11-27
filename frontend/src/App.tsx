@@ -9,8 +9,6 @@ import Discover from './pages/Discover'
 import Profile from './pages/Profile'
 
 
-
-
 function App() {
   const {
     user,
@@ -26,22 +24,24 @@ function App() {
     isAddingToReadingList,
     handleAddToReadingList: addBookToReadingList,
   } = useReadingList(user)
-const {
-  searchQuery,
-  setSearchQuery,
-  searchType,
-  setSearchType,
-  searchResults,
-  authorResults,
-  seriesResults,
-  isSearching,
-  searchError,
-  selectedWork,
-  setSelectedWork,
-  isLoadingWork,
-  handleBookSearch,
-  handleSelectWork,
-} = useBookSearch()
+  const {
+    searchQuery,
+    setSearchQuery,
+    searchType,
+    setSearchType,
+    searchResults,
+    authorResults,
+    seriesResults,
+    isSearching,
+    searchError,
+    selectedItem,
+    setSelectedItem,
+    isLoadingItem,
+    handleBookSearch,
+    handleSelectWork,
+    handleSelectAuthor,
+    handleSelectSeries,
+  } = useBookSearch()
 
   async function handleLogout() {
     try {
@@ -78,11 +78,13 @@ const {
                 seriesResults={seriesResults}
                 isSearching={isSearching}
                 searchError={searchError}
-                selectedWork={selectedWork}
-                isLoadingWork={isLoadingWork}
+                selectedItem={selectedItem}
+                isLoadingItem={isLoadingItem}
                 onSearch={handleBookSearch}
                 onSelectWork={handleSelectWork}
-                onClearSelectedWork={() => setSelectedWork(null)}
+                onSelectAuthor={handleSelectAuthor}
+                onSelectSeries={handleSelectSeries}
+                onClearSelectedItem={() => setSelectedItem(null)}
                 onAddToReadingList={addBookToReadingList}
                 onLogout={handleLogout}
               />
@@ -110,7 +112,5 @@ const {
     />
   )
 }
-
-
 
 export default App
